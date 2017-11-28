@@ -2,16 +2,19 @@
 
 const Poloniex = require('poloniex-api-node')
 const _ = require('lodash')
+const ProgressBar = require('progress')
 const asciiTable = require('ascii-table')
 const logging = require('./logger')
 
 //one minute intervals for displaying new average
-//const monitorInterval = 60000 
-const monitorInterval = 6000
+const monitorInterval = 60000
 
 var mover = []
 var moverLock = false //prevent modification to mover 
+// var averageDisplay = 'Loading...'
 var baseTimestamp = new Date()
+// var bar
+// var barLock = false
 
 
 module.exports.monitorCurrencies = async function (currencyPair){
@@ -33,12 +36,12 @@ module.exports.monitorCurrencies = async function (currencyPair){
 	    if(data.currencyPair == currencyPair){
 	    	mover.push({
 	    		currencyPair: currencyPair,
-	    		last: data.last,
+	    		last: parseFloat(data.last),
 	    		timestamp: new Date()
 	    	})
 	    }	
 
-	    check(mover,baseTimestamp)
+	    checkStreamInterval(currencyPair,mover)
 
 	    //push value to OBJECT ARRAY, STORE IN MEMORY, PRUNE MEMORY
 	  }
@@ -99,35 +102,102 @@ module.exports.monitorCurrencies = async function (currencyPair){
 }
 
 
-async function check(){
+async function checkStreamInterval(currencyPair,mover){
 
-	console.log(mover.length)
 
 	if(!mover || mover.length < 1){
-		console.log('not enough data')
 		return
 	}
+
+	//console.log(mover)
 
 	//find elapsed time since last base ts
 	let latestTime = mover[mover.length - 1].timestamp
 	let elapsedTime = latestTime - baseTimestamp
 
-	console.log('elasped: ',elapsedTime)
+
 	// show graphic countdown from 60000 until next update
+	//console.log('. e: ', elapsedTime)
+
+	// if (elapsedTime % 2 === 0){
+	// 	console.log('.')
+	// 	//bar.tick()
+	// }
+
+
+	
+	// if(!barLock){
+	// 	bar = new ProgressBar('  Collecting Prices [:bar] :etas', {
+	// 		complete: '=',
+	// 		incomplete: ' ',
+	// 		width: 60,
+	// 		total: monitorInterval
+	// 	})
+	// 	barLock = true
+	// }else {
+	// 	if(bar.complete){
+	// 		barLock = false
+	// 	}else {
+	// 		bar.tick(elapsedTime / 1000)
+	// 	}
+	// }
+
+
+
+	
+
+	  // if (bar.complete) {
+	  //   console.log('\ncomplete\n')
+	  //   clearInterval(timer)
+	  // }
+
+	// console.log('MOVER LOCK ',moverLock)
+	// console.log('ELAPSED TIME_____ ',elapsedTime)
 
 	//check if we should update the average price (it's been a minute since last)
-	if(elapsedTime >= monitorInterval && !moverLock){
+	//&& if mover array isn't locked
+	if(elapsedTime >= monitorInterval && moverLock == false){
 
 		moverLock = true
 
-		console.log('IT"S BEEN ONE MINUTE!!!!!')	
+		//console.log('👻👻👻👻')
 
-		//so we dont accidentally delete any new data added by socket stream
-		let latestIndex = _.findIndex(mover, function(i) {
+		//console.log('MOVER LENGTH >>>>>> ',mover.length)	
+
+		// //so we dont accidentally delete any new data added by socket stream
+
+		let latestIndex = _.findLastIndex(mover, function(i) {
 		    return i.timestamp == latestTime 
 		})
 
-		let average = await getAverage(mover,latestIndex)
+		let average = await getAverage(mover.slice(0,latestIndex))
+
+		//let average = await getAverage(mover)
+
+
+		// mover.unshift({
+  //   		currencyPair: currencyPair,
+  //   		last: mover[latestIndex].last,
+  //   		timestamp: new Date()
+  //   	})
+
+
+		//mover = []
+
+		console.log('AVERAGE ✨: ',average)
+
+		//console.log('mover length pre-splice ',mover.length)
+
+		// //prune the mover object array to reduce mem usage overtime
+		mover.splice(0,latestIndex)
+
+		//console.log('mover length post-splice ',mover.length)
+		//update baseTimestamp
+
+
+		baseTimestamp = latestTime 
+
+		moverLock = false
 
 	}			
 	
@@ -135,11 +205,32 @@ async function check(){
 }
 
 
-async function getAverage(mover,latestIndex){
+async function getAverage(moverSlice){
 
-	console.log('mvoer length ',mover.length)
-	console.log('latest index ',latestIndex)
+	//add up all values 
+	let total = _.sumBy(moverSlice, function(o) { return o.last; })
+	//find average
+	let avg = total / moverSlice.length
+
+	return avg.toFixed(8)
 }
+
+
+// function showTimer(){
+// 	let latestTime = mover[mover.length - 1].timestamp
+// 	let elapsedTime = latestTime - baseTimestamp
+
+// 	let timeLeft = monitorInterval - elapsedTime
+
+// 	var min = timeLeft / 1000 / 60
+// 	var r = min % 1
+// 	var sec = Math.floor(r * 60)
+// 	if (sec < 10) {
+// 	    sec = '0'+sec
+// 	}
+// 	min = Math.floor(min)
+// 	console.log(min+':'+sec)
+// }
 
 
 //FIND SIMPLE MOVING AVERAGE
