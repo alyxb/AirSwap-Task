@@ -1,0 +1,26 @@
+{
+  "name": "market-monitor",
+  "version": "1.0.0",
+  "description": "Monitors live changes in crypto market ",
+  "main": "index.js",
+  "scripts": {
+    "test": "./index --pair ETH/BTC"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jrbaldwin/AirSwap-Task.git"
+  },
+  "author": "Alyx Baldwin",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jrbaldwin/AirSwap-Task/issues"
+  },
+  "homepage": "https://github.com/jrbaldwin/AirSwap-Task#readme",
+  "dependencies": {
+    "ascii-table": "0.0.9",
+    "co": "^4.6.0",
+    "lodash": "^4.17.4",
+    "poloniex-api-node": "^1.6.5",
+    "winston": "^2.4.0"
+  }
+}
