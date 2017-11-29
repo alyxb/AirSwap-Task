@@ -18,6 +18,8 @@
   "homepage": "https://github.com/jrbaldwin/AirSwap-Task#readme",
   "dependencies": {
     "ascii-table": "0.0.9",
+    "blessed": "^0.1.81",
+    "blessed-contrib": "^4.8.5",
     "co": "^4.6.0",
     "lodash": "^4.17.4",
     "poloniex-api-node": "^1.6.5",
