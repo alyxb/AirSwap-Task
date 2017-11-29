@@ -1,7 +1,7 @@
 {
   "name": "market-monitor",
   "version": "1.0.0",
-  "description": "Monitors live changes in crypto market ",
+  "description": "Monitors currency pair averages via Poloniex stream",
   "main": "index.js",
   "scripts": {
     "test": "./index --pair ETH/BTC"
@@ -17,13 +17,12 @@
   },
   "homepage": "https://github.com/jrbaldwin/AirSwap-Task#readme",
   "dependencies": {
-    "ascii-table": "0.0.9",
     "blessed": "^0.1.81",
     "blessed-contrib": "^4.8.5",
+    "cli-spinner": "^0.2.7",
     "co": "^4.6.0",
     "lodash": "^4.17.4",
     "poloniex-api-node": "^1.6.5",
-    "progress": "^2.0.0",
     "winston": "^2.4.0"
   }
 }
